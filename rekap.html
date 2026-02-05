@@ -17,6 +17,8 @@
         th { background: #f8f9fa; }
         .btn-del { color: red; cursor: pointer; border:none; background:none; font-size: 12px; }
     </style>
+    <script src="config.js"></script>
+    <script>cekLogin();</script>
 </head>
 <body>
     <nav>
@@ -41,28 +43,28 @@
         </div>
     </div>
 
-    <script src="config.js"></script>
     <script>
-        cekLogin();
-
         async function muatData() {
-            const { data, error } = await supabase.from('absensi').select('*').order('tanggal', { ascending: false });
+            const { data, error } = await supabase.from('absensi').select('*').order('tanggal', { ascending: false }).limit(100);
             if (error) alert(error.message);
             else {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('tabelAbsen').style.display = 'table';
                 const body = document.getElementById('isiTabel');
-                body.innerHTML = '';
+                
+                // Optimasi: Bangun string dulu baru set innerHTML sekali
+                let html = '';
                 data.forEach(row => {
-                    body.innerHTML += `
+                    html += `
                         <tr>
                             <td>${row.nama}</td>
-                            <td>${row.tanggal}</td>
+                            <td>${new Date(row.tanggal).toLocaleString('id-ID')}</td>
                             <td>${row.keterangan}</td>
                             <td><button class="btn-del" onclick="hapus('${row.id}')">Hapus</button></td>
                         </tr>
                     `;
                 });
+                body.innerHTML = html;
             }
         }
 
